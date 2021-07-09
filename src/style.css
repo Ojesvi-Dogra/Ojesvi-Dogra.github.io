@@ -1,0 +1,27 @@
+html, body {
+  height:100%;
+}
+.greeting {
+  padding:50px;
+  text-align:center;
+  display:inline-block;
+  background:#ccc;
+  border:1px solid #000;
+  margin:5px 5px 0 0;
+  max-width:100px;
+}
+
+.giant-header {
+  height:100%;
+  display:block;
+}
+
+.dev-icon {
+  display:inline-block;
+  padding:50px;
+  text-align:center;
+}
+.dev-icon i {
+  color:#666;
+  font-size:50px
+}
