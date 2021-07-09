@@ -6,7 +6,7 @@ const mapState = Vuex.mapState;
 const store = new Vuex.Store({
   state: {
     developerSkills: [
-    { id: 1, className: 'devicon-webpack-plain' },
+    { id: 1, className: 'devicon-webpack-plain', message: "Webpack" },
     { id: 2, className: 'devicon-vuejs-plain' },
     { id: 3, className: 'devicon-react-original' },
     { id: 4, className: 'devicon-nodejs-plain' },
