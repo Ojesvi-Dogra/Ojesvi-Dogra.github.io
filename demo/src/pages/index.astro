@@ -1,0 +1,63 @@
+---
+import { getImage } from 'astro:assets';
+import Icon from '../components/Icon.astro';
+import Projects from '../components/Projects';
+import Gallery from '../components/Gallery';
+import { experience, education, skills, projects } from '../data/resume';
+import '../styles/global.css';
+import photo1 from '../assets/portfolio-1.jpg';
+import photo2 from '../assets/portfolio-2.jpg';
+import photo3 from '../assets/portfolio-3.jpg';
+const images = [photo2, photo1, photo3];
+const captions = ['Mountains & cloud', 'A little color on the road', 'A moment outdoors'];
+const descriptions = ['Snow-streaked mountain peaks beneath drifting clouds', 'A colorful dreamcatcher hanging inside a vehicle against a monochrome street', 'Blue sunglasses resting on sunlit grass and rocks'];
+const photos = await Promise.all(images.map(async (image, index) => ({
+  src: (await getImage({ src: image, width: 1600, format: 'webp' })).src,
+  thumb: (await getImage({ src: image, width: 500, format: 'webp' })).src,
+  caption: captions[index], alt: descriptions[index]
+})));
+const links = [
+  { label: 'GitHub', icon: 'github' as const, href: 'https://github.com/Ojesvi-Dogra' },
+  { label: 'LinkedIn', icon: 'linkedin' as const, href: 'https://www.linkedin.com/in/ojesvi-dogra/' },
+  { label: 'Email', icon: 'mail' as const, href: 'mailto:dogra.ojesvi@gmail.com' }
+];
+const nav = [['Experience', 'experience'], ['Skills', 'skills'], ['Education', 'education'], ['Projects', 'projects'], ['About me', 'about'], ['Contact', 'contact']];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Ojesvi Dogra — software developer and data analyst. Explore professional experience, education, projects, and photography." />
+    <meta name="theme-color" content="#0c294c" />
+    <title>Ojesvi Dogra | Software Developer & Data Analyst</title>
+    <link rel="canonical" href={new URL("demo/", Astro.site)} />
+  </head>
+  <body id="top">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header container">
+      <a class="wordmark" href="#top">Ojesvi Dogra<span class="brand-dot">.</span></a>
+      <nav class="desktop-nav" aria-label="Main navigation">{nav.map(([label, id]) => <a href={`#${id}`}>{label}</a>)}</nav>
+      <button class="button primary print-button header-print" type="button"><Icon name="download" /> Save résumé</button>
+      <details class="mobile-nav"><summary>Menu <span aria-hidden="true">☰</span></summary><nav aria-label="Mobile navigation">{nav.map(([label, id]) => <a href={`#${id}`}>{label}</a>)}</nav></details>
+    </header>
+    <main id="main">
+      <section class="hero container" aria-labelledby="hero-title">
+        <div class="hero-copy"><p class="eyebrow">Professional résumé</p><h1 id="hero-title">Ojesvi Dogra<span class="brand-dot">.</span></h1><p class="role-title">Software Developer &amp; Data Analyst</p><p class="hero-description">Computer Science graduate from Purdue University with experience in application development, data analysis, and full-stack engineering.</p><div class="hero-actions"><button class="button primary print-button" type="button"><Icon name="download" /> Save résumé</button><a class="button secondary" href="#contact"><Icon name="mail" /> Get in touch</a></div><p class="save-note">Print or save a clean PDF of this résumé.</p></div>
+        <aside class="links-card" aria-labelledby="links-title"><p class="eyebrow">Find me online</p><h2 id="links-title">Let’s connect.</h2><p>Good conversations start here.</p><ul>{links.map(link => <li><a href={link.href} target={link.icon === 'mail' ? undefined : '_blank'} rel={link.icon === 'mail' ? undefined : 'noreferrer'}><Icon name={link.icon} /><span>{link.label}</span><Icon name="arrow" /></a></li>)}</ul></aside>
+      </section>
+      <div class="resume-layout container">
+        <section id="experience" aria-labelledby="experience-title"><p class="eyebrow">The work so far</p><h2 id="experience-title">Experience</h2><p class="section-description">Building useful software. Making complex systems work better.</p><div class="timeline">{experience.map(job => <article class="job"><div class="job-heading"><div><h3>{job.role}</h3><p class="company">{job.company}</p></div><p class="dates">{job.dates}</p></div><p class="location">{job.location}</p><ul>{job.bullets.map(bullet => <li>{bullet}</li>)}</ul><ul class="chips" aria-label={`Technologies used at ${job.company}`}>{job.skills.map(skill => <li>{skill}</li>)}</ul></article>)}</div></section>
+        <aside class="resume-sidebar"><section id="skills" aria-labelledby="skills-title"><p class="eyebrow">My toolkit</p><h2 id="skills-title">Skills</h2><p class="section-description">Technical skills, grounded in practice.</p>{skills.map(group => <div class="skill-group"><h3>{group.category}</h3><ul class="chips">{group.items.map(skill => <li>{skill}</li>)}</ul></div>)}</section><section id="education" aria-labelledby="education-title"><p class="eyebrow">Foundations</p><h2 id="education-title">Education</h2>{education.map(item => <article class="education-item"><span class="icon-circle"><Icon name="education" /></span><div><h3>{item.school}</h3><p>{item.degree}</p><p class="dates">{item.dates}</p><p class="small muted">{item.courses}</p></div></article>)}</section></aside>
+      </div>
+      <section id="projects" class="projects-section container" aria-labelledby="projects-title"><div class="section-heading"><div><p class="eyebrow">Ideas into practice</p><h2 id="projects-title">Selected projects</h2></div><p class="section-description">Independent exploration.<br />Academic foundations.</p></div><Projects projects={projects} client:load /><noscript><p>All projects are shown. Enable JavaScript to use category filters.</p></noscript></section>
+      <section id="about" class="about-section" aria-labelledby="about-title"><div class="container about-layout"><div><p class="eyebrow">Beyond the résumé</p><h2 id="about-title">About me</h2><p class="section-description">A different perspective, outside of work.</p><div class="hobby"><span class="icon-circle"><Icon name="camera" /></span><div><h3>Through my lens</h3><p>Photography gives me space to slow down, notice the details, and explore ideas beyond the screen.</p><ul class="chips"><li>Photography</li></ul></div></div></div><Gallery photos={photos} client:load /><noscript><p>Enable JavaScript to enlarge photographs.</p></noscript></div></section>
+      <section id="contact" class="contact-section container" aria-labelledby="contact-title"><div class="contact-banner"><div><p class="eyebrow">Start a conversation</p><h2 id="contact-title">Let’s connect.</h2><p>For opportunities, collaborations, and professional enquiries.</p></div><a class="button primary" href="mailto:dogra.ojesvi@gmail.com"><Icon name="mail" /> Contact me</a></div></section>
+    </main>
+    <footer class="container"><a class="wordmark" href="#top">Ojesvi Dogra<span class="brand-dot">.</span></a><p>Built with care. Always learning.</p><a href="#top">Back to top <span aria-hidden="true">↑</span></a></footer>
+    <script>
+      document.querySelectorAll('.print-button').forEach(button => button.addEventListener('click', () => window.print()));
+      document.querySelectorAll('.mobile-nav a').forEach(link => link.addEventListener('click', () => document.querySelector('.mobile-nav')?.removeAttribute('open')));
+    </script>
+  </body>
+</html>
