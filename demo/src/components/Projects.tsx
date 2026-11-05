@@ -1,7 +1,9 @@
 import { useRef, useState } from "react";
 import { flushSync } from "react-dom";
+import ProjectDetails from "./ProjectDetails";
 import type { Project } from "../data/resume";
 export default function Projects({ projects }: { projects: Project[] }) {
+  const [selected, setSelected] = useState<Project | null>(null);
   const [filter, setFilter] = useState("All");
   const transition = useRef<ViewTransition | null>(null);
   function selectCategory(category: string) {
@@ -57,21 +59,17 @@ export default function Projects({ projects }: { projects: Project[] }) {
                       <span className="eyebrow">{project.category}</span>
                       <h4>{project.title}</h4>
                       <p>{project.description}</p>
-                      {project.href ? (
-                        <a href={project.href} target="_blank" rel="noreferrer">
-                          View project <span aria-hidden="true">↗</span>
-                        </a>
-                      ) : (
-                        <span className="placeholder-note">
-                          Project details coming soon
-                        </span>
-                      )}
+                      <button className="project-details-button" type="button" onClick={() => setSelected(project)} aria-haspopup="dialog" aria-label={`Explore project: ${project.title}`}>
+                        Explore project <span aria-hidden="true">↗</span>
+                      </button>
+                      {project.isPlaceholder && <span className="placeholder-note">Template project</span>}
                     </article>
                   ))}
               </div>
             </section>
           ))}
       </div>
+      <ProjectDetails project={selected} onClose={() => setSelected(null)} />
     </>
   );
 }

@@ -276,3 +276,71 @@ test("project filters work without view transitions and motion stays disabled wh
   await projects.getByRole('button', { name: 'All', exact: true }).click();
   await expect(projects.locator('.project-card')).toHaveCount(4);
 });
+
+test('reading progress tracks scrolling and responds to expanded roles', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/demo/');
+  const bar = page.locator('.reading-progress');
+  await expect(bar).toBeVisible();
+  await expect(bar.locator('span')).toHaveCSS('transform', 'matrix(0, 0, 0, 1, 0, 0)');
+  await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
+  await expect(bar.locator('span')).toHaveCSS('transform', 'matrix(1, 0, 0, 1, 0, 0)');
+  const details = page.locator('.experience-details').first();
+  await details.locator('summary').click();
+  await expect(details).toHaveAttribute('open', '');
+  await expect(details.locator('.experience-content')).toBeVisible();
+  await expect(details.getByText('Java', { exact: true })).toBeVisible();
+  await details.locator('summary').press('Enter');
+  await expect(details).not.toHaveAttribute('open', '');
+  await expect(details.locator('.experience-content')).not.toBeVisible();
+});
+
+test('project details support keyboard access, accessible content and focus restoration', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/demo/');
+  const opener = page.getByRole('button', { name: 'Explore project: [Personal project name]', exact: true });
+  await opener.focus();
+  await opener.press('Enter');
+  const panel = page.getByRole('dialog', { name: '[Personal project name]', exact: true });
+  await expect(panel).toBeVisible();
+  await expect(panel).toContainText('Template project · Replace these prompts');
+  await expect(panel.getByRole('heading', { name: 'The problem' })).toBeVisible();
+  const close = panel.getByRole('button', { name: 'Close project details' });
+  await expect(close).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(close).toBeFocused();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.keyboard.press('Escape');
+  await expect(panel).not.toBeVisible();
+  await expect(opener).toBeFocused();
+  await expect.poll(() => page.evaluate(() => document.body.style.overflow)).not.toBe('hidden');
+  await page.locator('#projects').getByRole('button', { name: 'Academic', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore project: [Academic project name]', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: '[Academic project name]', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Close project details' }).click();
+  await expect(page.getByRole('dialog')).not.toBeVisible();
+});
+
+test('experience remains expandable without JavaScript and prints all achievements', async ({ browser, baseURL }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  await page.goto(baseURL!);
+  const details = page.locator('.experience-details').first();
+  await details.locator('summary').click();
+  await expect(details.locator('.experience-content')).toBeVisible();
+  await details.locator('summary').click();
+  await page.emulateMedia({ media: 'print' });
+  await expect(details.locator('.experience-content')).toBeVisible();
+  await expect(page.locator('.reading-progress')).not.toBeVisible();
+  await context.close();
+});
+
+test('project panel animates opening and closing', async ({ page }) => {
+  await page.goto('/demo/');
+  await page.getByRole('button', { name: 'Explore project: [Personal project name]', exact: true }).click();
+  const panel = page.getByRole('dialog', { name: '[Personal project name]', exact: true });
+  await expect(panel.locator('.project-dialog-content')).toHaveCSS('animation-name', 'project-panel-in');
+  await page.getByRole('button', { name: 'Close project details' }).click();
+  await expect(panel).toHaveClass(/is-closing/);
+  await expect(panel).not.toBeVisible();
+});

@@ -26,6 +26,13 @@ function activate(id?: string) {
 let queued = false;
 function updateNavigation() {
   queued = false;
+  const progress = document.querySelector<HTMLElement>('.reading-progress');
+  const fill = progress?.querySelector<HTMLElement>('span');
+  if (progress && fill) {
+    const range = document.documentElement.scrollHeight - window.innerHeight;
+    fill.style.transform = `scaleX(${range > 0 ? Math.min(1, Math.max(0, window.scrollY / range)) : 0})`;
+    progress.hidden = false;
+  }
   const boundary = Math.min(window.innerHeight * 0.3, 240);
   const passed = sections.map(section => ({ id: section.id, top: section.getBoundingClientRect().top }))
     .filter(section => section.top <= boundary).sort((a, b) => b.top - a.top);
@@ -39,3 +46,18 @@ window.addEventListener('scroll', scheduleUpdate, { passive: true });
 window.addEventListener('resize', scheduleUpdate);
 links.forEach(link => link.addEventListener('click', () => activate(link.hash.slice(1))));
 updateNavigation();
+
+// Layout changes (expanded roles, filtered projects, loaded images) affect progress.
+if ('ResizeObserver' in window) new ResizeObserver(scheduleUpdate).observe(document.body);
+document.addEventListener('toggle', scheduleUpdate, true);
+const printDetails = new Map<HTMLDetailsElement, boolean>();
+window.addEventListener('beforeprint', () => {
+  document.querySelectorAll<HTMLDetailsElement>('.experience-details').forEach(details => {
+    printDetails.set(details, details.open);
+    details.open = true;
+  });
+});
+window.addEventListener('afterprint', () => {
+  printDetails.forEach((open, details) => { details.open = open; });
+  printDetails.clear();
+});

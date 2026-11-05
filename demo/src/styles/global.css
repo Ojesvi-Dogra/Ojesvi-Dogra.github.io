@@ -1189,3 +1189,44 @@ html { scroll-padding-top: 120px; }
   .project-card:hover, .project-card:focus-within, .project-card a:hover span,
   .project-card a:focus-visible span { transform: none; }
 }
+
+.reading-progress { position: fixed; inset: 0 0 auto; height: 3px; z-index: 60; pointer-events: none; background: #e7eff8; }
+.reading-progress span { display: block; height: 100%; background: var(--blue); transform: scaleX(0); transform-origin: left; }
+.job-overview { color: var(--muted); font-size: .88rem; margin-top: 16px; }
+.experience-details { margin-top: 14px; }
+.experience-details summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; list-style: none; color: var(--blue); font-size: .82rem; font-weight: 600; padding-block: 8px; }
+.experience-details summary::-webkit-details-marker { display: none; }
+.experience-details summary span { font-size: 1.2rem; transition: transform 200ms ease; }
+.experience-details[open] summary span { transform: rotate(45deg); }
+.experience-details::details-content { interpolate-size: allow-keywords; block-size: 0; overflow: clip; transition: block-size 240ms ease, content-visibility 240ms allow-discrete; }
+.experience-details[open]::details-content { block-size: auto; }
+.experience-content > ul:not(.chips) { color: var(--muted); font-size: .88rem; padding-left: 20px; margin: 10px 0; }
+.experience-content > ul:not(.chips) li { margin-bottom: 7px; }
+.project-details-button { display: inline-flex; gap: 8px; margin-top: auto; margin-bottom: 10px; padding: 8px 0; color: var(--blue); background: none; border: 0; font-size: .82rem; font-weight: 600; }
+.project-details-button span { transition: transform 180ms ease; }
+.project-details-button:hover span, .project-details-button:focus-visible span { transform: translate(2px,-2px); }
+.project-dialog { width: min(640px,calc(100% - 32px)); max-height: 90dvh; padding: 0; border: 1px solid var(--line); border-radius: 12px; color: var(--navy); background: white; overflow: auto; }
+.project-dialog::backdrop { background: #091829b8; animation: gallery-backdrop-in 220ms ease both; }
+.project-dialog-content { position: relative; padding: 44px 34px 32px; }
+.project-dialog[open] .project-dialog-content { animation: project-panel-in 240ms ease both; }
+.project-dialog.is-closing .project-dialog-content { animation: project-panel-out 180ms ease both; }
+.project-dialog.is-closing::backdrop { animation: gallery-backdrop-out 180ms ease both; }
+.project-dialog-close { position: absolute; top: 8px; right: 12px; width: 40px; height: 40px; border: 0; border-radius: 50%; background: var(--pale); color: var(--navy); font-size: 1.7rem; }
+.project-dialog h2 { font-size: 1.7rem; overflow-wrap: anywhere; }
+.project-template-note { padding: 10px 12px; background: var(--pale); border-radius: 5px; margin-top: 18px; font-size: .8rem; }
+.project-dialog section { margin-top: 24px; }
+.project-dialog section p { color: var(--muted); font-size: .9rem; margin-top: 8px; }
+.project-dialog .button { margin-top: 24px; }
+@keyframes project-panel-in { from { opacity: .6; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes project-panel-out { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(12px); } }
+@media (prefers-reduced-motion: reduce) {
+  .project-dialog::backdrop { animation: none; }
+  .experience-details::details-content { transition: none; }
+  .project-details-button:hover span, .project-details-button:focus-visible span { transform: none; }
+}
+@media print {
+  .reading-progress { display: none !important; }
+  .experience-details::details-content { content-visibility: visible; block-size: auto; overflow: visible; }
+  .experience-details summary { display: none; }
+  .experience-content > ul:not(.chips), .job-overview { font-size: 9pt; }
+}

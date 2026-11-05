@@ -77,22 +77,27 @@ export type Project = {
   title: string;
   description: string;
   href?: string;
+  isPlaceholder?: boolean;
+  details?: { problem: string; approach: string; outcome: string; technologies: string[] };
 };
 // Replace these template entries with verified projects. Add href only for real links.
 export const projects: Project[] = [
   {
+    isPlaceholder: true,
     id: "personal-1",
     category: "Personal",
     title: "[Personal project name]",
     description: "Share the inspiration, what you built, and what you learned.",
   },
   {
+    isPlaceholder: true,
     id: "personal-2",
     category: "Personal",
     title: "[Creative project name]",
     description: "Describe a hobby-driven experiment or creative project.",
   },
   {
+    isPlaceholder: true,
     id: "academic-1",
     category: "Academic",
     title: "[Academic project name]",
@@ -100,6 +105,7 @@ export const projects: Project[] = [
       "Describe the course context, your contribution, and the outcome.",
   },
   {
+    isPlaceholder: true,
     id: "academic-2",
     category: "Academic",
     title: "[Research or coursework project]",
