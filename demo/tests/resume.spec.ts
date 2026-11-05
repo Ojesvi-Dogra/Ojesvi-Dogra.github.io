@@ -247,3 +247,32 @@ test("every gallery image has attribution and blocks context menus and dragging"
     await expect(viewer).not.toBeVisible();
   }
 });
+
+test("navigation follows scrolling and experience reveals once", async ({ page, isMobile }) => {
+  await page.goto('/demo/');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.locator('#about').evaluate(section => window.scrollTo({ top: section.getBoundingClientRect().top + window.scrollY - 120, behavior: 'instant' }));
+  const navigation = page.getByRole('navigation', { name: isMobile ? 'Mobile navigation' : 'Main navigation', exact: true });
+  if (isMobile) await page.locator('.mobile-nav summary').click();
+  await expect(navigation.getByRole('link', { name: 'About me', exact: true })).toHaveAttribute('aria-current', 'location');
+  await expect(navigation.locator('[aria-current]')).toHaveCount(1);
+  if (isMobile) await page.locator('.mobile-nav summary').click();
+  await page.locator('#experience').scrollIntoViewIfNeeded();
+  await expect(page.locator('.job').first()).toHaveClass(/is-revealed/);
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.locator('.job').last().scrollIntoViewIfNeeded();
+  await expect(page.locator('.job').last()).toHaveClass(/is-revealed/);
+});
+
+test("project filters work without view transitions and motion stays disabled when requested", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/demo/');
+  await page.evaluate(() => { Object.defineProperty(document, 'startViewTransition', { value: undefined, configurable: true }); });
+  await expect(page.locator('.hero-copy h1')).toHaveCSS('animation-name', 'none');
+  const projects = page.locator('#projects');
+  await projects.getByRole('button', { name: 'Academic', exact: true }).click();
+  await expect(projects.locator('.project-card')).toHaveCount(2);
+  await expect(projects.locator('.project-card').first()).toHaveCSS('animation-name', 'none');
+  await projects.getByRole('button', { name: 'All', exact: true }).click();
+  await expect(projects.locator('.project-card')).toHaveCount(4);
+});

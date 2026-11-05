@@ -1136,3 +1136,56 @@ footer .wordmark {
     bottom: 8px;
   }
 }
+
+/* Content stays visible if scripts or motion are unavailable. */
+html { scroll-padding-top: 120px; }
+.site-header { position: sticky; top: 0; z-index: 20; background: rgba(255,255,255,.97); }
+.site-header nav a { position: relative; }
+.site-header nav a::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 2px;
+  height: 2px; background: var(--blue); transform: scaleX(0);
+  transform-origin: left; transition: transform 180ms ease;
+}
+.site-header nav a[aria-current="location"] { color: var(--blue); }
+.site-header nav a[aria-current="location"]::after,
+.site-header nav a:hover::after,
+.site-header nav a:focus-visible::after { transform: scaleX(1); }
+.button { transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease; }
+.button:focus-visible { transform: translateY(-2px); }
+.button svg, .links-card a svg:last-child, .project-card a span {
+  transition: transform 180ms ease; display: inline-block;
+}
+.button:hover svg, .button:focus-visible svg { transform: translateY(-2px); }
+.links-card a:hover svg:last-child, .links-card a:focus-visible svg:last-child,
+.project-card a:hover span, .project-card a:focus-visible span { transform: translate(2px,-2px); }
+.project-card { transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease; }
+.project-card:hover, .project-card:focus-within {
+  transform: translateY(-3px); border-color: #a8c2e1; box-shadow: 0 8px 24px #10223f0d;
+}
+.skill-group .chips li { transition: background 180ms ease, color 180ms ease; }
+.skill-group .chips li:hover { background: #dceafa; color: var(--navy); }
+:root { view-transition-name: none; }
+.project-categories { view-transition-name: project-list; }
+::view-transition-group(project-list) { animation-duration: 280ms; }
+::view-transition-old(project-list), ::view-transition-new(project-list) { animation-duration: 220ms; }
+@media (prefers-reduced-motion: no-preference) {
+  .hero-copy > * { animation: resume-enter 380ms ease backwards; }
+  .hero-copy > :nth-child(2) { animation-delay: 50ms; }
+  .hero-copy > :nth-child(3) { animation-delay: 100ms; }
+  .hero-copy > :nth-child(4) { animation-delay: 150ms; }
+  .hero-copy > :nth-child(5) { animation-delay: 200ms; }
+  .is-revealed { animation: resume-enter 350ms ease backwards; }
+  .project-card { animation: project-enter 280ms ease backwards; }
+  .project-card:nth-child(2) { animation-delay: 40ms; }
+}
+@keyframes resume-enter { from { opacity: .95; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes project-enter { from { opacity: .3; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@media print {
+  .job, .education-item, .hero-copy > * { animation: none !important; opacity: 1 !important; transform: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .button:hover, .button:focus-visible, .button:hover svg, .button:focus-visible svg,
+  .links-card a:hover svg:last-child, .links-card a:focus-visible svg:last-child,
+  .project-card:hover, .project-card:focus-within, .project-card a:hover span,
+  .project-card a:focus-visible span { transform: none; }
+}

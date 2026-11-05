@@ -56,6 +56,7 @@ const nav = [['Experience', 'experience'], ['Skills', 'skills'], ['Education', '
     </main>
     <footer class="container"><a class="wordmark" href="#top">Ojesvi Dogra<span class="brand-dot">.</span></a><p>Built with care. Always learning.</p><a href="#top">Back to top <span aria-hidden="true">↑</span></a></footer>
     <script>
+      import "../scripts/interactions";
       document.querySelectorAll('.print-button').forEach(button => button.addEventListener('click', () => window.print()));
       document.querySelectorAll('.mobile-nav a').forEach(link => link.addEventListener('click', () => document.querySelector('.mobile-nav')?.removeAttribute('open')));
     </script>

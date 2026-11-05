@@ -1,7 +1,20 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import type { Project } from "../data/resume";
 export default function Projects({ projects }: { projects: Project[] }) {
   const [filter, setFilter] = useState("All");
+  const transition = useRef<ViewTransition | null>(null);
+  function selectCategory(category: string) {
+    if (category === filter) return;
+    transition.current?.skipTransition();
+    if (document.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      transition.current = document.startViewTransition(() => {
+        flushSync(() => setFilter(category));
+      });
+    } else {
+      setFilter(category);
+    }
+  }
   const visible = projects.filter(
     (project) => filter === "All" || project.category === filter,
   );
@@ -14,7 +27,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
               key={category}
               type="button"
               aria-pressed={filter === category}
-              onClick={() => setFilter(category)}
+              onClick={() => selectCategory(category)}
             >
               {category}
             </button>
@@ -25,7 +38,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
           Template content
         </p>
       </div>
-      <div className="project-categories">
+      <div className="project-categories" key={filter}>
         {(["Personal", "Academic"] as const)
           .filter((category) => filter === "All" || filter === category)
           .map((category) => (
