@@ -7,25 +7,16 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "dev": "astro dev --host 0.0.0.0",
-    "build": "astro build && node scripts/stage-demo.mjs",
-    "preview": "astro preview --host 0.0.0.0",
-    "check": "astro check",
+    "dev": "python3 -m http.server 4322 --bind 0.0.0.0 --directory ..",
+    "build": "node scripts/check-site.mjs",
+    "preview": "python3 -m http.server 4321 --bind 127.0.0.1 --directory ..",
+    "check": "node scripts/check-site.mjs",
     "test": "playwright test"
   },
-  "dependencies": {
-    "@astrojs/react": "^4.4.2",
-    "astro": "^5.18.2",
-    "react": "^19.3.1",
-    "react-dom": "^19.3.1"
-  },
   "devDependencies": {
-    "@astrojs/check": "^0.9.12",
     "@axe-core/playwright": "^4.14.0",
     "@playwright/test": "^1.64.1",
     "@types/node": "^24.19.2",
-    "@types/react": "^19.3.0",
-    "@types/react-dom": "^19.3.0",
     "typescript": "^5.9.3"
   }
 }

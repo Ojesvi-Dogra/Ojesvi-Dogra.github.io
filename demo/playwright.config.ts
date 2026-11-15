@@ -20,7 +20,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run build && npm run preview -- --port 4321",
+    command: "npm run check && npm run preview",
     port: 4321,
     reuseExistingServer: false,
   },

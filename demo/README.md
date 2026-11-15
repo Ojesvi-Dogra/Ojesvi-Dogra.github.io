@@ -1,47 +1,47 @@
-# Résumé demo
+# Ojesvi Dogra · Interactive portfolio demo
 
-Published path: https://ojesvi-dogra.github.io/demo/
+Test URL: https://ojesvi-dogra.github.io/demo/
 
-All demo source, configuration, photos, and generated browser assets are in this folder. The original homepage in the repository root is preserved.
+This folder contains the static HTML/CSS/JavaScript design supplied in **Ojesvi_Interactive_Portfolio_GitHub_Pages.zip**. It replaces the earlier Astro-generated demo; that implementation remains in Git history. All browser assets use relative paths and are self-hosted here. The repository's original root homepage and its Pages publishing configuration are preserved.
 
-## Development
+## Preview
 
-Use Node 24 (minimum 22.12). From the repository root:
+No build or runtime npm installation is required:
+
+```sh
+# From the repository root
+python3 -m http.server 4322 --directory .
+```
+
+Visit `/demo/` on the local server. Commit changes under `demo/` to `main` for the existing branch-based GitHub Pages deployment. Do not deploy this ZIP's standalone root-site workflow over the current homepage.
+
+## Editing
+
+- `index.html`: résumé content, education, contact links, initial gallery and project markup.
+- `motion.css`, `interactions.css`: layout refinements, transitions, dark theme, responsive and reduced-motion rules.
+- `motion.js`: skill evidence, project concepts, filters, expanding roles, dialogs, gallery, active navigation and printing.
+- `interactions.js`: theme/motion controls, impact cards, working principles, project walkthroughs, photo thumbnails and contact preview.
+- `static/`: the export's base stylesheet and optimized photography. Preserve filenames or update every reference.
+
+Keep the script order: `motion.js` before `interactions.js`. Edit these files directly; `npm run build` validates the static files and does not regenerate or overwrite them.
+
+## Validation
+
+Use Node 24 and Python 3. Test dependencies are development-only:
 
 ```sh
 cd demo
-export ASTRO_TELEMETRY_DISABLED=1
 npm ci --cache /tmp/ojesvi-npm-cache
-npm run dev
-```
-
-Open the development server's `/demo/` path.
-
-## Build and test
-
-```sh
 npm run check
 npm test
-npm run build
 ```
 
-`npm run build` generates `dist/`, then copies the built homepage to `demo/index.html` and assets to `demo/static/`. Commit both generated outputs with source changes to update the demo through existing branch-based GitHub Pages publishing. The `static` asset directory avoids Jekyll's underscore-directory exclusion. No change to the root homepage or Pages source is required.
+Checks verify JavaScript syntax and local asset references. Browser tests serve the actual repository at `/demo/` and cover desktop/mobile layout, project filters and walkthroughs, skill evidence, photo navigation/zoom, copyright and casual-saving deterrents, theme accessibility, navigation/progress, motion controls, print behavior, no-JavaScript résumé content and contact-preview validation. The runner uses `/usr/bin/chromium` here; on other machines install Chromium with `npx playwright install chromium`.
 
-Browser tests use `/usr/bin/chromium` when available; on other machines run `npx playwright install chromium` first.
+## Testing boundaries
 
-## Content and interactions
+Project examples are explicitly labelled **concepts** and do not claim completed delivery. The contact form validates input and previews a response; it sends and stores nothing. Use the direct email link to contact Ojesvi. Save résumé opens browser printing or Save as PDF.
 
-- `src/data/resume.ts`: career content copied from the original portfolio and intentional project placeholders. Review career dates before publishing.
-- `src/pages/index.astro`: introduction, links, hobby text and photo imports.
-- `src/components/Projects.tsx`: All / Personal / Academic filtering. Add verified details and URLs to replace the placeholders.
-- `src/components/Gallery.tsx`: manual sliding carousel with arrows, position dots and swipe gestures; enlarged modal viewer with opening/closing animations, keyboard navigation, focus restoration and reduced-motion support.
-- `src/components/ProtectedImage.tsx`: visible copyright overlay, context-menu and image-drag deterrents. These do not prevent screenshots, direct downloads or copying via browser tools. Original image files are not watermarked.
-- `src/styles/global.css`: responsive styles and print layout. Save résumé opens browser printing; choose Save as PDF.
+Every image variant displays attribution. Right-click saving and image dragging are suppressed with JavaScript; this does not prevent screenshots, direct downloads, or browser-tool access. Original WebP files are not permanently watermarked.
 
-Stack: Astro, TypeScript, React islands and plain CSS. No secrets or backend services are required. Browser assets and optimized WebP images are self-hosted under `/demo/static/`.
-
-## Motion and navigation
-
-The header stays available while scrolling and highlights the active résumé section. Experience and education entries reveal once as they enter view. Project filtering uses a transition scoped to the project list when the browser supports the View Transition API, with normal filtering and a brief card entrance as the fallback. The introduction, cards, skill chips, links, and buttons have restrained entrance or hover/focus effects. Reduced-motion preferences remove animation; résumé text remains visible without JavaScript and in print.
-
-The reading-progress bar updates as the page scrolls or its content changes height. Each role keeps its overview visible and uses native details for additional achievements and technologies, including without JavaScript. Printing expands all role details and hides interactive controls. Project cards open accessible animated case-study dialogs with Escape support, focus containment/restoration and background scroll locking. Populate optional `details` (`problem`, `approach`, `outcome`, `technologies`) in `src/data/resume.ts`, set `isPlaceholder: false`, and supply a verified `href` when ready. Existing examples remain explicitly labelled templates.
+Integration fixes preserve the uploaded design while improving dark-mode contrast, dialog keyboard focus, photo copyright coverage and mobile behavior. Photography remains credited to Ojesvi Dogra; no new image license is granted.

@@ -1,14 +1,14 @@
 {
-  "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
-    "jsx": "react-jsx",
-    "jsxImportSource": "react"
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true
   },
   "include": [
-    ".astro/types.d.ts",
-    "src/**/*",
-    "tests/**/*",
+    "tests/**/*.ts",
     "playwright.config.ts"
-  ],
-  "exclude": ["dist", "assets"]
+  ]
 }
