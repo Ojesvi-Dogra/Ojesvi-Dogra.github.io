@@ -59,13 +59,26 @@ test('skills expose evidence and open the relevant experience', async ({ page })
   await skill.click();
   await expect(skill).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('#skill-evidence')).toContainText('enterprise scheduling');
-  await expect(page.locator('.skill-group').first().locator('.coverage-value')).toHaveText('1 / 4');
+  await expect(page.locator('.skill-group').first().locator('.coverage-value')).toHaveText('1 / 6');
   await skill.click();
-  await expect(page.locator('.skill-group').first().locator('.coverage-value')).toHaveText('1 / 4');
+  await expect(page.locator('.skill-group').first().locator('.coverage-value')).toHaveText('1 / 6');
   await page.getByRole('link', { name: 'View related experience' }).click();
-  await expect(page.locator('#role-0 details')).toHaveAttribute('open', '');
-  await page.locator('#role-0 summary').press('Enter');
-  await expect(page.locator('#role-0 details')).not.toHaveAttribute('open', '');
+  await expect(page.locator('#role-2 details')).toHaveAttribute('open', '');
+  await page.locator('#role-2 summary').press('Enter');
+  await expect(page.locator('#role-2 details')).not.toHaveAttribute('open', '');
+  // Role progression must not send evidence links to the former numeric positions.
+  for (const [label, target, role] of [
+    ['AI agents', '#role-0', 'Systems Engineer'],
+    ['WordPress', '#role-4', 'Website Coordinator'],
+    ['Citrix', '#role-5', 'Junior Network Analyst'],
+  ]) {
+    await page.locator('#skills').getByRole('button', { name: label, exact: true }).click();
+    const link = page.getByRole('link', { name: 'View related experience' });
+    await expect(link).toHaveAttribute('href', target);
+    await link.click();
+    await expect(page.locator(`${target} details`)).toHaveAttribute('open', '');
+    await expect(page.locator(target).getByRole('heading', { name: role, exact: true })).toBeVisible();
+  }
 });
 
 test('photo carousel, thumbnail filters, zoom and keyboard navigation work with attribution', async ({ page }) => {
@@ -138,7 +151,7 @@ test('navigation, progress and print preserve the résumé', async ({ page, isMo
   await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
   await expect(page.locator('.reading-progress span')).toHaveCSS('transform', 'matrix(1, 0, 0, 1, 0, 0)');
   await page.evaluate(() => window.dispatchEvent(new Event('beforeprint')));
-  await expect(page.locator('.experience-details[open]')).toHaveCount(4);
+  await expect(page.locator('.experience-details[open]')).toHaveCount(6);
   await page.emulateMedia({ media: 'print' });
   await expect(page.locator('#experience')).toBeVisible();
   await expect(page.locator('.demo-controls')).not.toBeVisible();

@@ -25,3 +25,10 @@
   html.dark p, html.dark .company, html.dark .dates, html.dark .location { color: #111 !important; }
 }
 .dark .craft-line strong { color: #adc1d4; }
+
+/* Content grouping for the four roles held at Tata Consultancy Services. */
+.employer-heading { margin-top: 28px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+.employer-heading h3 { font-size: 1rem; margin-bottom: 5px; }
+.job h4 { font-size: 1.15rem; line-height: 1.3; }
+@media (max-width: 760px) { .job h4 { font-size: 1.05rem; } }
+@media print { .job h4 { font-size: 11pt; } .employer-heading { break-after: avoid; padding: 8px 10px; margin-top: 14px; } }

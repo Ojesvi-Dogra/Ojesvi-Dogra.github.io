@@ -4,7 +4,116 @@ const reduced=matchMedia('(prefers-reduced-motion: reduce)');
 const animate=(el,frames,options={})=>(reduced.matches||document.documentElement.classList.contains('motion-off'))?null:el.animate(frames,{duration:280,easing:'cubic-bezier(.2,.7,.2,1)',...options});
 const jobs=$$('.job');jobs.forEach((e,i)=>e.id='role-'+i);
 // Honest, evidence-linked skill explanations.
-const evidence={Java:['Used in enterprise scheduling, payroll, and HR applications at TCS, and Java development at Training Basket.',0],Python:['Used for predictive data tools during Java development training at Training Basket.',3],JavaScript:['Used to develop university webpages alongside WordPress and jQuery at Purdue University.',1],R:['Listed in the programming toolkit. A specific work sample can be added before publication.',null],Spring:['Part of the technology stack supporting enterprise application development at TCS.',0],Hibernate:['Part of the Java persistence stack used in the TCS role.',0],'REST APIs':['Listed among the technologies used for enterprise application development at TCS.',0],WordPress:['Used to develop and maintain university web content at Purdue University.',1],'Data analysis':['Applied to university web traffic reporting using Google Analytics and Data Studio.',1],MongoDB:['Listed in the data toolkit. A verified project example can be linked before publication.',null],'Google Analytics':['Used to create web traffic reports for 194 university websites.',1]};
+const evidence={
+  "Java": [
+    "Used to develop enterprise scheduling, payroll, and HR application features, BAU enhancements, interfaces, and backend services at TCS.",
+    2
+  ],
+  "J2EE": [
+    "Used to develop enterprise scheduling, payroll, and HR application features, BAU enhancements, interfaces, and backend services at TCS.",
+    2
+  ],
+  "Spring Framework": [
+    "Used to develop enterprise scheduling, payroll, and HR application features, BAU enhancements, interfaces, and backend services at TCS.",
+    2
+  ],
+  "REST APIs": [
+    "Used to develop enterprise scheduling, payroll, and HR application features, BAU enhancements, interfaces, and backend services at TCS.",
+    2
+  ],
+  "SQL": [
+    "Used to develop enterprise scheduling, payroll, and HR application features, BAU enhancements, interfaces, and backend services at TCS.",
+    2
+  ],
+  "JavaScript": [
+    "Used to develop enterprise scheduling, payroll, and HR application features, BAU enhancements, interfaces, and backend services at TCS.",
+    2
+  ],
+  "AI agents": [
+    "Developed and deployed AI-powered agents for business operations and incentive reports, and reusable agent skills for development, debugging, and testing at TCS.",
+    0
+  ],
+  "GitHub": [
+    "Led source-code migration from SVN to GitHub and standardized repository workflows at TCS.",
+    0
+  ],
+  "SVN": [
+    "Led source-code migration from SVN to GitHub and standardized repository workflows at TCS.",
+    0
+  ],
+  "Agile & SDLC": [
+    "Applied Agile and SDLC practices to enhancements, prioritization, code reviews, testing, and deployment coordination at TCS.",
+    1
+  ],
+  "Confluence": [
+    "Built knowledge repositories covering architecture, configuration, testing, ownership, workflows, and developer onboarding at TCS.",
+    0
+  ],
+  "Integration testing": [
+    "Supported design, planning, integration testing, and deployment with third-party platforms for an approximately $75 million enterprise-wide integration initiative.",
+    0
+  ],
+  "WordPress": [
+    "Developed 100+ university webpages using WordPress, JavaScript, and jQuery; published content for 10,000+ webpages and created Elementor templates.",
+    4
+  ],
+  "jQuery": [
+    "Developed 100+ university webpages using WordPress, JavaScript, and jQuery; published content for 10,000+ webpages and created Elementor templates.",
+    4
+  ],
+  "Google Analytics": [
+    "Analyzed traffic across 194 university websites using Google Analytics and Data Studio, with recommendations that improved user engagement by 5%.",
+    4
+  ],
+  "Google Data Studio": [
+    "Analyzed traffic across 194 university websites using Google Analytics and Data Studio, with recommendations that improved user engagement by 5%.",
+    4
+  ],
+  "Data analysis": [
+    "Analyzed traffic across 194 university websites using Google Analytics and Data Studio, with recommendations that improved user engagement by 5%.",
+    4
+  ],
+  "UX/UI": [
+    "Applied website coordination, traffic analysis, and planning recommendations to improve university user engagement.",
+    4
+  ],
+  "Windows Server": [
+    "Listed in the infrastructure toolkit for the Junior Network Analyst role at HCL, supporting system administration and client requirements.",
+    5
+  ],
+  "Active Directory": [
+    "Listed in the infrastructure toolkit for the Junior Network Analyst role at HCL, supporting system administration and client requirements.",
+    5
+  ],
+  "Linux": [
+    "Listed in the infrastructure toolkit for the Junior Network Analyst role at HCL, supporting system administration and client requirements.",
+    5
+  ],
+  "UNIX": [
+    "Used UNIX commands remotely through Citrix to resolve licensing and system issues at HCL.",
+    5
+  ],
+  "Citrix": [
+    "Used UNIX commands remotely through Citrix to resolve licensing and system issues at HCL.",
+    5
+  ],
+  "Requirement analysis": [
+    "Translated functional requirements with business analysts, QA, and engineers into scalable features and integrations at TCS.",
+    1
+  ],
+  "Production support": [
+    "Supported enterprise HR application maintenance, troubleshooting, incident investigation, defect tracking, and resolution at TCS.",
+    3
+  ],
+  "Security remediation": [
+    "Remediated 10,000+ security vulnerabilities and findings with application and security teams, including code fixes, regression and functional testing, and production releases.",
+    1
+  ],
+  "Regression testing": [
+    "Remediated 10,000+ security vulnerabilities and findings with application and security teams, including code fixes, regression and functional testing, and production releases.",
+    1
+  ]
+};
 const panel=document.createElement('div');panel.className='skill-evidence';panel.id='skill-evidence';panel.setAttribute('role','region');panel.setAttribute('aria-label','Skill in practice');panel.innerHTML='<p class="eyebrow">SKILLS IN PRACTICE</p><h3>Explore the experience behind a skill.</h3><p>Select a skill above to see where it fits into my work.</p>';$('#skills').append(panel);
 $$('#skills .chips li').forEach((li,i)=>{const label=li.textContent.trim();li.style.setProperty('--chip-delay',`${i%4*50}ms`);li.innerHTML='';const b=document.createElement('button');b.textContent=label;b.type='button';b.setAttribute('aria-pressed','false');b.setAttribute('aria-controls','skill-evidence');li.append(b);b.addEventListener('click',()=>{const before=panel.getBoundingClientRect().height;$$('#skills .chips button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));const [text,role]=evidence[label];panel.innerHTML=`<p class="eyebrow">${role===null?'TOOLKIT / EXAMPLE TO ADD':'USED IN PRACTICE'}</p><h3>${label}</h3><p>${text}</p>${role!==null?`<a class="evidence-link" href="#role-${role}">View related experience <span aria-hidden="true">↗</span></a>`:''}`;animate(panel,[{height:before+'px',opacity:.6},{height:panel.getBoundingClientRect().height+'px',opacity:1}]);if(role!==null){$('.evidence-link',panel).addEventListener('click',()=>{jobs[role].querySelector('details').open=true;setActive('experience');setTimeout(()=>animate(jobs[role],[{background:'#e5f0ff'},{background:'transparent'}],{duration:1200}),150)})}})});
 // Reliable accordion animation in browsers without intrinsic-size transitions.
