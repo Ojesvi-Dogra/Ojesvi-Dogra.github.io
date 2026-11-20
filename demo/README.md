@@ -18,7 +18,8 @@ Visit `/demo/` on the local server. Commit changes under `demo/` to `main` for t
 ## Editing
 
 - `index.html`: résumé content, education, contact links, initial gallery and project markup.
-- `motion.css`, `interactions.css`: layout refinements, transitions, dark theme, responsive and reduced-motion rules.
+- `motion.css`, `interactions.css`: transitions, dark theme and reduced-motion rules.
+- `responsive.css`: fluid page width, adaptive card grids, tablet/mobile reflow and compact gallery layout; load it after the other stylesheets.
 - `motion.js`: skill evidence, project concepts, filters, expanding roles, dialogs, gallery, active navigation and printing.
 - `interactions.js`: theme/motion controls, impact cards, working principles, project walkthroughs, photo thumbnails and contact preview.
 - `static/`: the export's base stylesheet and optimized photography. Preserve filenames or update every reference.
@@ -45,3 +46,5 @@ Project examples are explicitly labelled **concepts** and do not claim completed
 Every image variant displays attribution. Right-click saving and image dragging are suppressed with JavaScript; this does not prevent screenshots, direct downloads, or browser-tool access. Original WebP files are not permanently watermarked.
 
 Integration fixes preserve the uploaded design while improving dark-mode contrast, dialog keyboard focus, photo copyright coverage and mobile behavior. Photography remains credited to Ojesvi Dogra; no new image license is granted.
+
+The layout reflows on window resize, with fluid gutters and a readable wide-screen cap. Project filters collapse unused grid columns. Smaller windows use a full-width résumé and reorganized skills/education; the gallery uses a main image with thumbnail strips when space permits. Carousel images select a 500px or 1600px asset using responsive image hints. Regression tests sweep 320–2560px widths and resize open dialogs between portrait and landscape without reloading the page.

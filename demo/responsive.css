@@ -1,0 +1,183 @@
+/* Responsive layout for the static portfolio. Keep the original visual theme. */
+@media screen {
+  :root {
+    --page-gutter: clamp(16px, 3vw, 64px);
+    --page-width: 1800px;
+    --section-space: clamp(28px, 4vw, 56px);
+  }
+
+  .container,
+  .demo-controls {
+    width: min(var(--page-width), calc(100% - var(--page-gutter) * 2));
+    max-width: none;
+    margin-inline: auto;
+  }
+
+  .site-header {
+    gap: clamp(16px, 2vw, 28px);
+    padding-block: clamp(18px, 2vw, 28px);
+  }
+  .desktop-nav { flex-wrap: wrap; justify-content: center; }
+  .demo-controls { padding-inline: 0; flex-wrap: wrap; }
+  .demo-controls > div { flex-wrap: wrap; }
+
+  .hero {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, .85fr);
+    gap: clamp(24px, 4vw, 64px);
+    align-items: start;
+    padding-block: var(--section-space);
+  }
+  .hero-description { max-width: 70ch; }
+  .hero h1 { font-size: clamp(2.6rem, 6vw, 5.2rem); }
+  .role-title { font-size: clamp(1.25rem, 2.2vw, 1.9rem); }
+
+  .hero > *, .resume-layout > *, .resume-sidebar > *,
+  .about-layout > *, .contact-preview > *, .motion-project-grid > *,
+  .impact-grid > *, .practice-grid > * { min-width: 0; }
+
+  .resume-layout {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: clamp(24px, 3vw, 48px);
+    align-items: start;
+    padding-block: var(--section-space);
+  }
+  .resume-sidebar { padding-left: clamp(24px, 2.5vw, 36px); }
+  .job-heading { flex-wrap: wrap; }
+  .job-overview, .experience-content { max-width: 80ch; }
+  .job-heading h3, .job-heading h4, .company,
+  .education-item h3, .project-card h3 { overflow-wrap: anywhere; }
+
+  .motion-project-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+    gap: clamp(16px, 2vw, 28px);
+  }
+  .project-illustration { height: clamp(180px, 18vw, 240px); }
+  .project-illustration > div { max-width: 300px; }
+  .project-toolbar, .section-heading { flex-wrap: wrap; }
+
+  .impact-section { padding-bottom: var(--section-space); }
+  .practice-section { padding-block: 16px var(--section-space); }
+  .practice-card p { max-width: 45ch; }
+  .principles {
+    padding: clamp(24px, 4vw, 48px) !important;
+    margin-inline: auto;
+    margin-bottom: var(--section-space);
+  }
+  .principle-stage, .story-screen { min-height: 0; }
+  .principle-controls { flex-wrap: wrap; gap: 12px; }
+
+  .about-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(24px, 3vw, 40px);
+    align-items: start;
+  }
+  .photo-button { aspect-ratio: 16 / 9; max-height: 440px; }
+  .photo-thumbnails button { aspect-ratio: 1.5; }
+  .contact-preview {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    gap: clamp(20px, 3vw, 45px);
+    padding: clamp(20px, 3vw, 35px);
+  }
+  .contact-banner { padding: clamp(22px, 3vw, 38px); }
+  .form-fields input, .form-fields textarea { min-width: 0; }
+  footer { flex-wrap: wrap; }
+}
+
+/* Keep the gallery beside compact thumbnail strips instead of leaving a tall
+   empty column opposite the short About me introduction. */
+@media screen and (min-width: 800px) {
+  .about-layout > div:first-child {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    column-gap: clamp(24px, 4vw, 56px);
+    align-items: start;
+  }
+  .about-layout > div:first-child > .eyebrow,
+  .about-layout > div:first-child > h2,
+  .about-layout > div:first-child > .section-description { grid-column: 1; }
+  .hobby { grid-column: 2; grid-row: 1 / span 3; margin-top: 0; }
+  .gallery {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+    gap: 10px 24px;
+    align-items: start;
+  }
+  .carousel-viewport { grid-column: 1; grid-row: 1; }
+  .carousel-controls { grid-column: 1; grid-row: 2; margin-top: 0; }
+  .gallery > .carousel-caption { grid-column: 1; grid-row: 3; margin-top: 0; }
+  .gallery > p.muted { grid-column: 1; grid-row: 4; margin-top: 0; }
+  .photo-explorer { grid-column: 2; grid-row: 1 / span 4; margin-top: 0; }
+  .photo-thumbnails { grid-template-columns: minmax(0, 1fr); }
+  .photo-thumbnails button { aspect-ratio: 16 / 9; max-height: 140px; }
+}
+
+/* A full-width résumé is easier to read than two narrow tablet columns. */
+@media screen and (max-width: 1179px) {
+  .resume-layout { grid-template-columns: minmax(0, 1fr); }
+  .resume-sidebar {
+    display: block;
+    padding: 28px 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+  #skills, #education {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 28px;
+    align-items: start;
+  }
+  #skills > .eyebrow, #skills > h2, #skills > .section-description,
+  #skills > .skill-evidence, #education > .eyebrow, #education > h2 { grid-column: 1 / -1; }
+  .resume-sidebar section + section { margin-top: 28px; padding-top: 28px; border-top: 1px solid var(--line); }
+  .job-heading { flex-direction: row; }
+}
+
+@media screen and (max-width: 960px) {
+  .desktop-nav, .header-print { display: none; }
+  .mobile-nav { display: block; }
+  .mobile-nav summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; font-size: .85rem; }
+  .mobile-nav summary::-webkit-details-marker { display: none; }
+  .mobile-nav nav {
+    position: absolute; right: 0; top: 100%; z-index: 5;
+    display: flex; flex-direction: column; min-width: 190px;
+    padding: 14px; border: 1px solid var(--line); border-radius: 6px;
+    background: var(--paper); box-shadow: 0 8px 24px #10223f15;
+  }
+  .mobile-nav nav a { padding: 8px 14px; }
+  .hero { grid-template-columns: minmax(0, 1fr); }
+  .hero-description { max-width: 70ch; }
+  .links-card { padding: 24px; }
+  .about-layout { grid-template-columns: minmax(0, 1fr); }
+  .hobby p { max-width: 70ch; }
+  .photo-button { max-height: 400px; }
+  .contact-preview { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media screen and (min-width: 640px) and (max-width: 960px) {
+  .links-card ul { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .links-card li + li { border-top: 0; }
+  .links-card a { gap: 12px; }
+  .impact-grid, .practice-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .impact-card { padding: 20px 16px; }
+  .impact-card + .impact-card { border-left: 1px solid var(--line); border-top: 0; }
+  .practice-grid { gap: 20px; }
+}
+
+@media screen and (max-width: 639px) {
+  .impact-grid, .practice-grid { grid-template-columns: minmax(0, 1fr); }
+  .impact-card + .impact-card { border-left: 0; border-top: 1px solid var(--line); }
+  .contact-banner { align-items: flex-start; flex-direction: column; }
+  .contact-banner .button { white-space: normal; }
+  .gallery-grid, .photo-thumbnails { max-width: 100%; }
+  .principle-play { margin-left: 0; }
+}
+
+@media screen and (max-width: 559px) {
+  #skills, #education { grid-template-columns: minmax(0, 1fr); }
+  .job-heading { flex-direction: column; gap: 6px; }
+  .dates { white-space: normal; }
+  .project-illustration { height: 200px; }
+  .photo-filters { flex-wrap: wrap; }
+  .hero-actions { flex-wrap: wrap; }
+  .demo-controls { align-items: flex-start; }
+}

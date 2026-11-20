@@ -14,8 +14,17 @@ test('uploaded demo loads at /demo/ with no missing resources or script errors',
   await expect(page.locator('.demo-controls')).toBeVisible();
   await expect(page.locator('.impact-card')).toHaveCount(3);
   await expect(page.locator('.practice-card')).toHaveCount(3);
-  await page.locator('#about').scrollIntoViewIfNeeded();
-  await expect.poll(() => page.locator('img').evaluateAll(images => images.every(image => image.complete && image.naturalWidth > 0))).toBe(true);
+  // Off-screen carousel images are lazy-loaded; verify each when it is selected.
+  for (let index = 1; index <= 3; index++) {
+    await page.getByRole('button', { name: new RegExp(`^Show photograph ${index}:`) }).click();
+    const image = page.locator('.carousel-slide[aria-hidden="false"] img');
+    await image.scrollIntoViewIfNeeded();
+    await expect.poll(() => image.evaluate(image => image.complete && image.naturalWidth > 0)).toBe(true);
+  }
+  for (const image of await page.locator('.photo-thumbnails img').all()) {
+    await image.scrollIntoViewIfNeeded();
+    await expect.poll(() => image.evaluate(image => image.complete && image.naturalWidth > 0)).toBe(true);
+  }
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(errors).toEqual([]);
   expect(missing).toEqual([]);
@@ -237,4 +246,58 @@ test('animated filters, expanding roles and viewer transitions complete', async 
   await viewer.getByRole('button', { name: 'Close photography viewer' }).click();
   await expect(viewer).not.toBeVisible();
   await expect.poll(() => page.evaluate(() => document.body.style.overflow)).not.toBe('hidden');
+});
+
+test('layout reflows during window resizing and filtered cards fill their grid', async ({ page }) => {
+  await page.goto('/demo/');
+  for (const width of [320, 390, 559, 640, 768, 900, 1024, 1180, 1440, 1920, 2560]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.locator('.filter-group').getByRole('button', { name: 'Academic', exact: true }).click();
+    await expect(page.locator('.enhanced-card:visible')).toHaveCount(2);
+    const layout = await page.evaluate(() => {
+      const rect = (selector: string) => document.querySelector(selector)!.getBoundingClientRect();
+      const grid = rect('.motion-project-grid');
+      const cards = [...document.querySelectorAll('.enhanced-card:not([hidden])')].map(card => card.getBoundingClientRect());
+      const copy = rect('.about-layout > div');
+      const gallery = rect('.gallery');
+      return {
+        overflow: document.documentElement.scrollWidth - innerWidth,
+        containerWidth: rect('.hero').width,
+        firstCardGap: cards[0].left - grid.left,
+        lastCardGap: grid.right - cards[cards.length - 1].right,
+        sameRow: gallery.left >= copy.right,
+        aboutTopGap: gallery.top - copy.top,
+        aboutStackGap: gallery.top - copy.bottom,
+        experienceWidth: rect('#experience').width,
+      };
+    });
+    expect(layout.overflow, `horizontal overflow at ${width}px`).toBeLessThanOrEqual(1);
+    expect(Math.abs(layout.firstCardGap)).toBeLessThan(2);
+    expect(Math.abs(layout.lastCardGap), `unused project columns at ${width}px`).toBeLessThan(2);
+    if (layout.sameRow) expect(Math.abs(layout.aboutTopGap)).toBeLessThan(2);
+    else expect(layout.aboutStackGap, `empty space before gallery at ${width}px`).toBeLessThanOrEqual(64);
+    if (width === 900) expect(layout.experienceWidth).toBeGreaterThan(layout.containerWidth * .9);
+    if (width >= 1920) expect(layout.containerWidth).toBeGreaterThan(1500);
+    await page.locator('.filter-group').getByRole('button', { name: 'All', exact: true }).click();
+    await expect(page.locator('.enhanced-card:visible')).toHaveCount(4);
+  }
+});
+
+test('open experience and dialogs remain usable after portrait and landscape resizing', async ({ page }) => {
+  await page.goto('/demo/');
+  await page.locator('.experience-details').first().locator('summary').click();
+  await page.locator('[data-project="0"]').click();
+  const panel = page.getByRole('dialog', { name: 'Family Finance Dashboard' });
+  for (const viewport of [{ width: 390, height: 844 }, { width: 844, height: 390 }, { width: 1440, height: 900 }]) {
+    await page.setViewportSize(viewport);
+    const bounds = await panel.boundingBox();
+    expect(bounds).not.toBeNull();
+    expect(bounds!.x).toBeGreaterThanOrEqual(0);
+    expect(bounds!.y).toBeGreaterThanOrEqual(0);
+    expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(viewport.width + 1);
+    expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(viewport.height + 1);
+    await expect(panel.getByRole('button', { name: 'Close project details' })).toBeVisible();
+  }
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.experience-details').first()).toHaveAttribute('open', '');
 });
