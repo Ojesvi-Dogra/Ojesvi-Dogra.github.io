@@ -31,7 +31,27 @@ $$('[data-project]').forEach(b=>b.addEventListener('click',()=>{const p=projects
 const photoGrid=document.createElement('div');photoGrid.className='photo-explorer';photoGrid.innerHTML='<div class="photo-filters" role="group" aria-label="Filter photographs"><button aria-pressed="true">All</button><button aria-pressed="false">Landscape</button><button aria-pressed="false">Details</button></div><div class="photo-thumbnails">'+photos.map((p,i)=>`<button data-photo="${i}" data-kind="${i===0?'Landscape':'Details'}" aria-label="Explore photograph © Ojesvi Dogra · All rights reserved — ${p[1]}"><img draggable="false" src="${$('img',slides[i]).getAttribute('src')}" alt="${$('img',slides[i]).alt}" loading="lazy"><span class="photo-action">Explore photograph</span> <span class="thumbnail-copyright">© Ojesvi Dogra · All rights reserved</span></button>`).join('')+'</div><p class="photo-count small muted" role="status">3 photographs</p>';
 $('.gallery').append(photoGrid);$$('[data-photo]').forEach(b=>b.onclick=()=>$$('.photo-button')[+b.dataset.photo].click());$$('.photo-filters button').forEach(b=>b.onclick=()=>{$$('.photo-filters button').forEach(x=>x.setAttribute('aria-pressed',x===b));const items=$$('[data-photo]');items.forEach(c=>{c.hidden=b.textContent!=='All'&&c.dataset.kind!==b.textContent;if(!c.hidden)animate(c,[{opacity:0,transform:'scale(.94)'},{opacity:1,transform:'scale(1)'}])});$('.photo-count').textContent=items.filter(c=>!c.hidden).length+(items.filter(c=>!c.hidden).length===1?' photograph':' photographs')});
 // Enhance viewer navigation without replacing its existing focus-safe dialog.
-const originalRenderPhoto=renderPhoto;renderPhoto=function(){const active=document.activeElement;const focusLabel=active?.getAttribute('aria-label');const wasImage=active?.tagName==='IMG';originalRenderPhoto();animate($('.lightbox-inner .protected-image'),[{opacity:.25,transform:'translateX(20px)'},{opacity:1,transform:'translateX(0)'}]);const img=$('.lightbox-inner img');img.tabIndex=0;img.setAttribute('aria-label',img.alt+'. Activate to toggle zoom');function zoom(){const z=img.classList.toggle('photo-zoomed');img.setAttribute('aria-label',img.alt+(z?'. Activate to zoom out':'. Activate to zoom in'))}img.onclick=zoom;img.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();zoom()}};if(photoDialog.open){if(wasImage)img.focus();else ($$('button',photoDialog).find(b=>b.getAttribute('aria-label')===focusLabel)||$('.lightbox-close')).focus()}};
+const originalRenderPhoto=renderPhoto;
+renderPhoto=function(){
+  const wasOpen=photoDialog.open,active=document.activeElement;
+  const focusLabel=active?.getAttribute('aria-label'),wasImage=active?.tagName==='IMG';
+  photoAnimation?.cancel();
+  originalRenderPhoto();
+  const stage=$('.lightbox-inner .protected-image'),img=$('.lightbox-inner img');
+  // Initial opening is animated once by the opener; navigation uses a short crossfade.
+  if(wasOpen)photoAnimation=animate(stage,[{opacity:.4},{opacity:1}],{duration:160});
+  img.tabIndex=0;
+  img.setAttribute('aria-label',img.alt+'. Activate to toggle zoom');
+  function zoom(){
+    const zoomed=img.classList.toggle('photo-zoomed');
+    stage.classList.toggle('is-zoomed',zoomed);
+    if(!zoomed){stage.scrollTop=0;stage.scrollLeft=0}
+    img.setAttribute('aria-label',img.alt+(zoomed?'. Activate to zoom out':'. Activate to zoom in'));
+  }
+  img.onclick=zoom;
+  img.onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();zoom()}};
+  if(wasOpen){if(wasImage)img.focus();else ($$('button',photoDialog).find(button=>button.getAttribute('aria-label')===focusLabel)||$('.lightbox-close')).focus()}
+};
 // Demo form has real validation and simulated feedback; no message is transmitted.
 $('#contact').insertAdjacentHTML('beforeend','<form class="contact-preview"><div><p class="eyebrow">TRY THE CONTACT EXPERIENCE</p><h3>A thoughtful first hello.</h3><p>Preview only. Nothing is sent or stored. Use “Email directly” to open your email app.</p><a href="mailto:dogra.ojesvi@gmail.com">Email directly ↗</a></div><div class="form-fields"><label>Your name<input name="name" autocomplete="name" required maxlength="100" placeholder="Your name"></label><label>Email address<input name="email" type="email" autocomplete="email" required placeholder="you@example.com"></label><label>Your message<textarea name="message" required minlength="10" maxlength="2000" rows="3" placeholder="What would you like to discuss?"></textarea></label><button class="button primary" type="submit">Preview submission <span>↗</span></button><p role="status" class="form-status"></p></div></form>');
 $('.contact-preview').onsubmit=async e=>{e.preventDefault();const b=$('button[type=submit]',e.target),status=$('.form-status');b.disabled=true;b.innerHTML='<span class="submit-spinner" aria-hidden="true"></span> Previewing…';status.textContent='Checking the preview…';await new Promise(r=>setTimeout(r,motionOff()?0:900));b.disabled=false;b.innerHTML='Preview again ↗';status.textContent='✓ Preview complete. No message was sent. Email directly to get in touch.';animate(status,[{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'translateY(0)'}])};

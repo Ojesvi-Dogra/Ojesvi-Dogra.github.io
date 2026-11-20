@@ -301,3 +301,73 @@ test('open experience and dialogs remain usable after portrait and landscape res
   await page.keyboard.press('Escape');
   await expect(page.locator('.experience-details').first()).toHaveAttribute('open', '');
 });
+
+test('image opening has one smooth transition with no scrollbar flash or layout jump', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.goto('/demo/');
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }, { width: 844, height: 390 }]) {
+    await page.setViewportSize(viewport);
+    const opener = page.locator('[data-photo="0"]');
+    await opener.scrollIntoViewIfNeeded();
+    await opener.locator('img').evaluate(image => image.decode());
+    await opener.focus();
+    const result = await opener.evaluate(async button => {
+      const gallery = document.querySelector('.gallery')!;
+      const left = gallery.getBoundingClientRect().left;
+      (button as HTMLButtonElement).click();
+      const dialog = document.querySelector<HTMLDialogElement>('.lightbox')!;
+      const stage = dialog.querySelector<HTMLElement>('.protected-image')!;
+      const initial = dialog.getBoundingClientRect();
+      const samples: { overflow: number; heightChange: number; widthChange: number; animationCount: number; overflowMode: string; shift: number }[] = [];
+      const start = performance.now();
+      while (performance.now() - start < 400) {
+        const bounds = dialog.getBoundingClientRect();
+        samples.push({
+          overflow: dialog.scrollHeight - dialog.clientHeight,
+          heightChange: Math.abs(bounds.height - initial.height),
+          widthChange: Math.abs(bounds.width - initial.width),
+          animationCount: stage.getAnimations().length,
+          overflowMode: getComputedStyle(dialog).overflow,
+          shift: Math.abs(gallery.getBoundingClientRect().left - left),
+        });
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+      }
+      return samples;
+    });
+    expect(result.length).toBeGreaterThan(1);
+    for (const sample of result) {
+      expect(sample.overflow, `dialog overflow at ${viewport.width}px`).toBeLessThanOrEqual(1);
+      expect(sample.heightChange).toBeLessThanOrEqual(1);
+      expect(sample.widthChange).toBeLessThanOrEqual(1);
+      expect(sample.animationCount).toBeLessThanOrEqual(1);
+      expect(sample.overflowMode).toBe('hidden');
+      expect(sample.shift).toBeLessThanOrEqual(1);
+    }
+    const viewer = page.getByRole('dialog', { name: 'Photography viewer' });
+    await expect(viewer.locator('img')).toHaveJSProperty('complete', true);
+    await expect(viewer.locator('img')).not.toHaveJSProperty('naturalWidth', 0);
+    await viewer.getByRole('button', { name: 'Close photography viewer' }).click();
+    await expect(viewer).not.toBeVisible();
+    await expect(opener).toBeFocused();
+  }
+});
+
+test('zoom remains pannable without visible scrollbars', async ({ page }) => {
+  await page.goto('/demo/');
+  await page.locator('[data-photo="0"]').click();
+  const viewer = page.getByRole('dialog', { name: 'Photography viewer' });
+  const image = viewer.locator('img');
+  await image.focus();
+  await image.press('Enter');
+  const stage = viewer.locator('.protected-image');
+  await expect(stage).toHaveClass(/is-zoomed/);
+  await expect(stage).toHaveCSS('overflow', 'auto');
+  await expect(stage).toHaveCSS('scrollbar-width', 'none');
+  await stage.evaluate(element => element.scrollTo({ top: 80, left: 80 }));
+  expect(await stage.evaluate(element => element.scrollTop > 0 || element.scrollLeft > 0)).toBe(true);
+  await image.press('Enter');
+  await expect(stage).not.toHaveClass(/is-zoomed/);
+  await expect(stage).toHaveCSS('overflow', 'hidden');
+  await page.keyboard.press('Escape');
+  await expect(viewer).not.toBeVisible();
+});

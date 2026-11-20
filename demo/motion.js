@@ -136,9 +136,46 @@ const projectDialog=$('.project-dialog');$$('[data-project]').forEach(b=>b.addEv
 // Gallery: swipe, keyboard controls, caption fade, thumbnail-to-lightbox transition.
 const photos=[['portfolio-2.CkDoJZnz_17qFQN.webp','Mountains & cloud'],['portfolio-1.DBMByDRv_Z1byAEd.webp','A little color on the road'],['portfolio-3.BfGVOm6V_1hePxR.webp','A moment outdoors']];let photo=0;const slides=$$('.carousel-slide'),photoDialog=$('.lightbox');function changePhoto(index){photo=(index+photos.length)%photos.length;$('.gallery-grid').style.transform=`translateX(-${photo*100}%)`;slides.forEach((s,i)=>{s.inert=i!==photo;s.setAttribute('aria-hidden',String(i!==photo))});$$('.carousel-dots button').forEach((b,i)=>b.setAttribute('aria-pressed',String(i===photo)));$('.carousel-caption').textContent=`${photos[photo][1]} · ${photo+1} / 3`;animate($('.carousel-caption'),[{opacity:0,transform:'translateY(4px)'},{opacity:1,transform:'translateY(0)'}]);}
 $('[aria-label="Previous carousel image"]').onclick=()=>changePhoto(photo-1);$('[aria-label="Next carousel image"]').onclick=()=>changePhoto(photo+1);$$('.carousel-dots button').forEach((b,i)=>b.onclick=()=>changePhoto(i));$('.gallery').addEventListener('keydown',e=>{if(photoDialog.open)return;if(e.key==='ArrowRight'){e.preventDefault();changePhoto(photo+1)}if(e.key==='ArrowLeft'){e.preventDefault();changePhoto(photo-1)}});let touchX=null;$('.carousel-viewport').addEventListener('touchstart',e=>touchX=e.touches[0].clientX,{passive:true});$('.carousel-viewport').addEventListener('touchend',e=>{if(touchX!==null){const delta=e.changedTouches[0].clientX-touchX;if(Math.abs(delta)>45)changePhoto(photo+(delta<0?1:-1));touchX=null}},{passive:true});
-let thumbnail=null,photoClosing=false;function renderPhoto(){const img=$('img',slides[photo]);$('.lightbox-inner').innerHTML=`<button class="lightbox-close" aria-label="Close photography viewer">×</button><span class="protected-image"><img src="./static/${photos[photo][0]}" alt="${img.alt}" draggable="false" width="1000" height="720"><span class="image-copyright">© Ojesvi Dogra · All rights reserved</span></span><div class="lightbox-footer"><button aria-label="Previous enlarged photograph">←</button><p aria-live="polite">${photos[photo][1]} <span>· ${photo+1} / 3</span></p><button aria-label="Next enlarged photograph">→</button></div>`;$('.lightbox-close').onclick=closePhoto;$('[aria-label="Previous enlarged photograph"]').onclick=()=>{changePhoto(photo-1);renderPhoto()};$('[aria-label="Next enlarged photograph"]').onclick=()=>{changePhoto(photo+1);renderPhoto()}}
-$$('.photo-button').forEach((b,i)=>b.onclick=()=>{changePhoto(i);thumbnail=$('img',b);renderPhoto();showDialog(photoDialog);const target=$('.lightbox-inner .protected-image');const from=thumbnail.getBoundingClientRect(),to=target.getBoundingClientRect();animate(target,[{transform:`translate(${from.left-to.left}px,${from.top-to.top}px) scale(${from.width/to.width})`,opacity:.5},{transform:'translate(0,0) scale(1)',opacity:1}],{duration:350});});
-async function closePhoto(){if(photoClosing||!photoDialog.open)return;photoClosing=true;const target=$('.lightbox-inner .protected-image');thumbnail=$('img',slides[photo]);const from=target.getBoundingClientRect(),to=thumbnail.getBoundingClientRect();const a=animate(target,[{transform:'translate(0,0) scale(1)',opacity:1},{transform:`translate(${to.left-from.left}px,${to.top-from.top}px) scale(${to.width/from.width})`,opacity:.1}],{duration:190});try{await a?.finished}catch{}await hideDialog(photoDialog);photoClosing=false}photoDialog.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'){e.preventDefault()}if(e.key==='ArrowRight'){e.preventDefault()}if(e.key==='ArrowLeft'){changePhoto(photo-1);renderPhoto()}if(e.key==='ArrowRight'){changePhoto(photo+1);renderPhoto()}});
+let photoClosing=false,photoAnimation=null;
+function renderPhoto(){
+  const preview=$('img',slides[photo]);
+  const fullSource=`./static/${photos[photo][0]}`;
+  $('.lightbox-inner').innerHTML=`<button class="lightbox-close" aria-label="Close photography viewer">×</button><span class="protected-image"><img src="${preview.currentSrc||preview.src}" alt="${preview.alt}" draggable="false" width="1000" height="720"><span class="image-copyright">© Ojesvi Dogra · All rights reserved</span></span><div class="lightbox-footer"><button aria-label="Previous enlarged photograph">←</button><p aria-live="polite">${photos[photo][1]} <span>· ${photo+1} / 3</span></p><button aria-label="Next enlarged photograph">→</button></div>`;
+  // Keep the selected preview visible until the larger image has decoded.
+  // The fixed image stage prevents loading or aspect ratios from resizing the dialog.
+  const displayed=$('.lightbox-inner img'),fullImage=new Image();
+  fullImage.src=fullSource;
+  fullImage.decode().then(()=>{if(displayed.isConnected)displayed.src=fullSource}).catch(()=>{});
+  $('.lightbox-close').onclick=closePhoto;
+  $('[aria-label="Previous enlarged photograph"]').onclick=()=>{if(!photoClosing){changePhoto(photo-1);renderPhoto()}};
+  $('[aria-label="Next enlarged photograph"]').onclick=()=>{if(!photoClosing){changePhoto(photo+1);renderPhoto()}};
+}
+$$('.photo-button').forEach((button,index)=>button.onclick=()=>{
+  changePhoto(index);
+  renderPhoto();
+  showDialog(photoDialog);
+  // One centered transition: no off-screen translation that expands the dialog's scroll area.
+  photoAnimation=animate($('.lightbox-inner .protected-image'),[
+    {transform:'translateY(8px) scale(.96)',opacity:0},
+    {transform:'translateY(0) scale(1)',opacity:1}
+  ],{duration:320,easing:'cubic-bezier(.16,1,.3,1)'});
+});
+async function closePhoto(){
+  if(photoClosing||!photoDialog.open)return;
+  photoClosing=true;
+  const stage=$('.lightbox-inner .protected-image'),style=getComputedStyle(stage);
+  const initial={transform:style.transform,opacity:style.opacity};
+  photoAnimation?.cancel();
+  photoAnimation=animate(stage,[initial,{transform:'translateY(6px) scale(.98)',opacity:0}],{duration:180,fill:'forwards'});
+  // Fade the backdrop at the same time as the image instead of running two exits in sequence.
+  try{await Promise.all([photoAnimation?.finished.catch(()=>{}),hideDialog(photoDialog)])}
+  finally{photoAnimation?.cancel();photoAnimation=null;photoClosing=false}
+}
+photoDialog.addEventListener('keydown',event=>{
+  if(photoClosing)return;
+  if(event.key==='ArrowLeft'){event.preventDefault();changePhoto(photo-1);renderPhoto()}
+  if(event.key==='ArrowRight'){event.preventDefault();changePhoto(photo+1);renderPhoto()}
+});
 // Reveal every main section when its leading edge enters the viewport.
 // Content remains readable before JS, in print, and with reduced motion.
 const scrollAnimations=new Set();
