@@ -1,22 +1,16 @@
 {
-  "name": "ojesvi-resume",
-  "private": true,
+  "name": "ojesvi-portfolio-demo",
   "version": "1.0.0",
+  "private": true,
   "type": "module",
-  "engines": {
-    "node": ">=22.12.0"
-  },
   "scripts": {
-    "dev": "python3 -m http.server 4322 --bind 0.0.0.0 --directory ..",
+    "dev": "python3 -m http.server 4322 --bind 127.0.0.1 --directory ..",
     "build": "node scripts/check-site.mjs",
-    "preview": "python3 -m http.server 4321 --bind 127.0.0.1 --directory ..",
     "check": "node scripts/check-site.mjs",
     "test": "playwright test"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.14.0",
-    "@playwright/test": "^1.64.1",
-    "@types/node": "^24.19.2",
-    "typescript": "^5.9.3"
+    "@playwright/test": "1.64.1",
+    "@axe-core/playwright": "4.14.0"
   }
 }
